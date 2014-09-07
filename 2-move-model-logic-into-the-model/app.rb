@@ -9,20 +9,25 @@ class Post < FakeModel
     @fake_visit_count = post_params[:fake_visit_count]
     @id = 1
   end
+
+  def publish(author)
+    self.author = author
+
+    if fake_visit_count?
+      self.visit_count = rand(1000..3000)
+    else
+      self.visit_count = 0
+    end
+
+    save
+  end
 end
 
 class PostsController < FakeController
   def create
     @post = Post.new(params[:post])
-    @post.author = current_user
 
-    if @post.fake_visit_count?
-      @post.visit_count = rand(1000..3000)
-    else
-      @post.visit_count = 0
-    end
-
-    @post.save
+    @post.publish(current_user)
     redirect_to post_path(@post)
   end
 end
